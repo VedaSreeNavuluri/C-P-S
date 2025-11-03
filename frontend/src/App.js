@@ -9,7 +9,6 @@ import './styles/newstyle.css';
 import './styles/contact.css';
 import './styles/report.css';
 import PastWorks from "./components/PastWorks";
-import Navbar from "./components/Navbar";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import AllReports from "./components/AllReports";

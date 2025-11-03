@@ -13,7 +13,8 @@ function Contact() {
   const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -23,12 +24,16 @@ function Contact() {
     setSuccess(false);
 
     try {
-      const response = await axios.post(`${API_URL}/api/contact`, formData);
+      await axios.post(`${API_URL}/api/contact`, formData); // ✅ use response if needed
       setSuccess(true);
       setFormData({ name: "", email: "", message: "" });
+
+      // reset success after 3s
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to send message. Please try again.");
+      setError(
+        err.response?.data?.error || "Failed to send message. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -91,8 +96,15 @@ function Contact() {
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? "Sending..." : "Send Message"}
             </button>
-            {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
-            {success && <p style={{ color: "green", marginTop: "10px" }}>Thank you for contacting us! We will get back to you soon.</p>}
+
+            {error && (
+              <p style={{ color: "red", marginTop: "10px" }}>{error}</p>
+            )}
+            {success && (
+              <p style={{ color: "green", marginTop: "10px" }}>
+                Thank you for contacting us! We will get back to you soon.
+              </p>
+            )}
           </form>
         </div>
       </div>
