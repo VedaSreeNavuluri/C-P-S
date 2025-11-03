@@ -6,7 +6,11 @@ const cors = require('cors');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:3000", "https://c-p-s-fb4f.vercel.app"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,11 +21,13 @@ const connectDB = async () => {
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/community-solver', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        ssl: true,
+        tlsAllowInvalidCertificates: true, // temporary
       });
       console.log('✓ MongoDB connected successfully');
     }
   } catch (err) {
-    console.error('✗ MongoDB connection error:', err.message);
+    console.error('✗ MongoDB connection error:', err);
   }
 };
 
