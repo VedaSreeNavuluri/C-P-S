@@ -45,5 +45,16 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-module.exports = upload;
+// Add a helper function to get file URL
+upload.getFileUrl = (filename) => {
+  // For Vercel deployments, files in /tmp are not accessible via HTTP
+  // In production, you should integrate with a cloud storage service like AWS S3 or Cloudinary
+  if (isVercel) {
+    return null; // Files uploaded to /tmp are not publicly accessible
+  } else {
+    // For local development, files are accessible via /uploads route
+    return `/uploads/${filename}`;
+  }
+};
 
+module.exports = upload;

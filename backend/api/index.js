@@ -2,12 +2,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const dotenv = require('dotenv');
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:3000", "https://c-p-s-fb4f.vercel.app"],
+  origin: ["http://localhost:3000", "http://localhost:3001", "https://c-p-s-fb4f.vercel.app"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -18,11 +22,10 @@ app.use(express.urlencoded({ extended: true }));
 const connectDB = async () => {
   try {
     if (mongoose.connection.readyState === 0) {
+      // Remove deprecated options and use modern connection settings
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/community-solver', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
         ssl: true,
-        tlsAllowInvalidCertificates: true, // temporary
+        tlsAllowInvalidCertificates: false, // Set to false for production
       });
       console.log('✓ MongoDB connected successfully');
     }

@@ -27,6 +27,7 @@ const corsOptions = {
     
     const allowedOrigins = [
       'http://localhost:3000',
+      'http://localhost:3001', // Add this for your current setup
       process.env.FRONTEND_URL,
       // Add your Vercel domain here, or use environment variable
     ].filter(Boolean);
@@ -34,8 +35,13 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
-      // Allow all origins in development, restrict in production
-      callback(null, true); // For now, allow all. Change this in production.
+      // Restrict origins in production
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      if (isDevelopment) {
+        callback(null, true); // Allow all in development
+      } else {
+        callback(new Error('Not allowed by CORS')); // Restrict in production
+      }
     }
   },
   credentials: true,

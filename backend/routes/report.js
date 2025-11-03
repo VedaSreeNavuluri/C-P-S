@@ -20,9 +20,10 @@ router.get('/', async (req, res) => {
 router.post('/', upload.single('file'), async (req, res) => {
   try {
     const { name, category, description } = req.body;
-    // For Vercel, files are in /tmp and we should store base64 or use cloud storage
-    // For now, we'll store the filename (in production, upload to Cloudinary/S3)
-    const filePath = req.file ? `/tmp/uploads/${req.file.filename}` : null;
+    
+    // For Vercel, files are in /tmp and we should note they're not publicly accessible
+    // For production, integrate with cloud storage (AWS S3, Cloudinary, etc.)
+    const filePath = req.file ? req.file.filename : null;
 
     if (!name || !category || !description) {
       return res.status(400).json({ error: 'Please provide all required fields' });
@@ -78,4 +79,3 @@ router.patch('/:id/status', async (req, res) => {
 });
 
 module.exports = router;
-
