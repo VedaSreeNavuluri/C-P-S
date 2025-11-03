@@ -10,11 +10,14 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const cors = require('cors');
+
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:3001", "https://c-p-s-fb4f.vercel.app"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  origin: 'https://c-p-s-hj7c.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
