@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
-import API_URL from "../config/api";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -10,6 +10,9 @@ function Signup() {
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  const { signup } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,16 +24,14 @@ function Signup() {
     setError(null);
 
     try {
-      // Send signup request to the backend
-      const response = await axios.post(`${API_URL}/api/auth/signup`, formData);
-      console.log(response.data); // Handle the response from the backend
-      // Store token in localStorage for future requests
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      const result = await signup(formData.name, formData.email, formData.password);
+      
+      if (result.success) {
+        // Redirect to home page after successful signup
+        navigate("/");
+      } else {
+        setError(result.error);
       }
-      // Redirect to home after successful signup
-      window.location.href = '/';
     } catch (err) {
       console.error('Signup error:', err);
       if (err.response) {
@@ -38,7 +39,7 @@ function Signup() {
         setError(err.response.data?.error || err.response.data?.message || "Signup failed. Please try again.");
       } else if (err.request) {
         // Request made but no response (server might be down)
-        setError("Cannot connect to server. Please make sure the backend server is running on port 5000.");
+        setError("Cannot connect to server. Please make sure the backend server is running.");
       } else {
         // Something else happened
         setError(err.message || "Signup failed. Please try again.");
@@ -54,7 +55,7 @@ function Signup() {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "100vh",
+      minHeight: "80vh",
       backgroundColor: "#f5f5f5",
     },
     container: {
@@ -135,9 +136,9 @@ function Signup() {
         <div style={styles.link}>
           <p>
             Already have an account?{" "}
-            <a href="/login" style={styles.linkText}>
+            <Link to="/login" style={styles.linkText}>
               Login
-            </a>
+            </Link>
           </p>
         </div>
       </div>

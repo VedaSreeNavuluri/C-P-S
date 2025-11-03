@@ -48,15 +48,6 @@ function Home() {
         </div>
       ))}
 
-      {/* The top-right buttons (Login and Signup) */}
-      <div className="auth-buttons-top">
-        <Link to="/login">
-          <button className="auth-btn">Login</button>
-        </Link>
-        <Link to="/signup">
-          <button className="auth-btn">Signup</button>
-        </Link>
-      </div>
 
       {/* Past Works Section */}
       <div className="past-works-section">

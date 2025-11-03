@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
-import API_URL from "../config/api";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -9,6 +9,9 @@ function Login() {
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,18 +23,16 @@ function Login() {
     setError(null);
 
     try {
-      // Send login request to the backend
-      const response = await axios.post(`${API_URL}/api/auth/login`, formData);
-      console.log(response.data); // Handle the response from the backend
-      // Store token in localStorage for future requests
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      const result = await login(formData.email, formData.password);
+      
+      if (result.success) {
+        // Redirect to home page after successful login
+        navigate("/");
+      } else {
+        setError(result.error);
       }
-      // Redirect or handle successful login
-      window.location.href = '/';
     } catch (err) {
-      setError(err.response?.data?.error || "Login failed. Please check your credentials.");
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -43,7 +44,7 @@ function Login() {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "100vh",
+      minHeight: "80vh",
       backgroundColor: "#f5f5f5",
     },
     container: {
@@ -115,9 +116,9 @@ function Login() {
         <div style={styles.link}>
           <p>
             Don't have an account?{" "}
-            <a href="/signup" style={styles.linkText}>
+            <Link to="/signup" style={styles.linkText}>
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>

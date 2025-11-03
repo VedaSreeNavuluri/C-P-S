@@ -13,28 +13,33 @@ import Navbar from "./components/Navbar";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import AllReports from "./components/AllReports";
-
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <div className="App">
-      <Header />
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/report" element={<Report />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/pastworks" element={<PastWorks/>}/>
-          <Route path="/reports" element={<AllReports/>}/>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <Header />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/report" element={
+              <ProtectedRoute>
+                <Report />
+              </ProtectedRoute>
+            } />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/pastworks" element={<PastWorks/>}/>
+            <Route path="/reports" element={<AllReports/>}/>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </AuthProvider>
   );
 }
 
 export default App;
-
-

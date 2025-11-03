@@ -50,6 +50,14 @@ function AllReports() {
     return report.status.toLowerCase().replace(" ", "-") === filter;
   });
 
+  // Function to get file URL for a report
+  const getFileUrl = (filePath) => {
+    if (!filePath) return null;
+    // For now, we'll assume local development path
+    // In production, you'd need to integrate with cloud storage
+    return `${API_URL}/uploads/${filePath}`;
+  };
+
   return (
     <div className="all-reports-container">
       <div className="all-reports-header">
@@ -100,8 +108,13 @@ function AllReports() {
               {report.file && (
                 <div className="report-card-image">
                   <img
-                    src={`${API_URL}${report.file}`}
+                    src={getFileUrl(report.file)}
                     alt={report.name}
+                    onError={(e) => {
+                      // If the image fails to load, it might be because it's not accessible
+                      // In Vercel deployments, files in /tmp are not publicly accessible
+                      e.target.style.display = 'none';
+                    }}
                   />
                 </div>
               )}
@@ -134,4 +147,3 @@ function AllReports() {
 }
 
 export default AllReports;
-

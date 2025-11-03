@@ -1,8 +1,10 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 function Header() {
   const location = useLocation();
+  const { isAuthenticated, logout } = useAuth();
 
   return (
     <header className="main-header">
@@ -47,6 +49,16 @@ function Header() {
           >
             Past Works
           </Link>
+          {isAuthenticated ? (
+            <button onClick={logout} className="nav-button">
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link to="/login" className="nav-button">Login</Link>
+              <Link to="/signup" className="nav-button">Signup</Link>
+            </>
+          )}
         </div>
       </nav>
       <p className="tagline">Connecting communities, solving problems together</p>
@@ -55,4 +67,3 @@ function Header() {
 }
 
 export default Header;
-

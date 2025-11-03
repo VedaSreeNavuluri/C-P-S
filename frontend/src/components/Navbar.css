@@ -28,3 +28,18 @@
 .nav-links a:hover {
   text-decoration: underline;
 }
+
+.nav-button {
+  background: none;
+  border: none;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.nav-button:hover {
+  text-decoration: underline;
+}
