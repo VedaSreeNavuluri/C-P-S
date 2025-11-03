@@ -1,0 +1,61 @@
+/* contact.css */
+
+.contact-main {
+  padding: 2em;
+}
+
+.contact-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em;
+  justify-content: space-between;
+}
+
+.contact-info,
+.contact-form-section {
+  flex: 1 1 300px;
+  background-color: white;
+  padding: 1.5em;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.contact-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.contact-info li {
+  margin-bottom: 0.5em;
+}
+
+.contact-form .form-group {
+  margin-bottom: 1em;
+}
+
+.contact-form label {
+  display: block;
+  margin-bottom: 0.3em;
+  font-weight: bold;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 0.6em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.submit-btn {
+  background-color: #27ae60;
+  color: white;
+  padding: 0.7em 1.2em;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #219150;
+}

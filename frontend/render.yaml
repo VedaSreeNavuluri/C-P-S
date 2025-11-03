@@ -1,0 +1,19 @@
+# render.yaml - optional Render blueprint for backend service
+# Replace the placeholders with your own values before using.
+services:
+  - type: web
+    name: community-solver-all-in-one
+    env: node
+    plan: free
+    region: oregon
+    repo: <YOUR_GITHUB_USERNAME>/VAC-620
+    branch: main
+    # Use the server/start:render script which builds the frontend then starts the server
+    buildCommand: cd server && npm install && npm run start:render
+    startCommand: cd server && npm run start:render
+    path: .
+    envVars:
+      - key: MONGODB_URI
+        value: <YOUR_MONGODB_URI>
+      - key: JWT_SECRET
+        value: <YOUR_JWT_SECRET>

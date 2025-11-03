@@ -1,0 +1,41 @@
+name: Build and Deploy to Vercel
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm i -g vercel@28 || true
+          npx vercel --prod --token $VERCEL_TOKEN --confirm
+
+      # Optional: trigger Render redeploy via API (uncomment and set secrets)
+      #- name: Trigger Render deploy
+      #  if: ${{ secrets.RENDER_API_KEY && secrets.RENDER_SERVICE_ID }}
+      #  env:
+      #    RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      #    RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      #  run: |
+      #    curl -X POST "https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}" \
+      #      -H "Authorization: Bearer $RENDER_API_KEY" \
+      #      -H "Accept: application/json"
