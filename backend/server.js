@@ -3,91 +3,109 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const fs = require('fs');
 
 dotenv.config();
 
 const app = express();
 
-// Global error handlers to prevent the process from crashing on unhandled errors
+// ==============================
+// Global error handlers
+// ==============================
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // don't exit process; the server can continue running and handle requests (DB ops will fail until DB is available)
 });
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception thrown:', err);
-  // Log and continue (in production you might want to restart the process using a supervisor)
 });
 
-// Middleware
+// ==============================
+// CORS Configuration
+// ==============================
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://c-p-s-g6vo.vercel.app',
+  'https://c-p-s-hj7c.vercel.app',
+  process.env.FRONTEND_URL, // from Render environment variable
+].filter(Boolean); // remove undefined values
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001', // Add this for your current setup
-      process.env.FRONTEND_URL,
-      // Add your Vercel domain here, or use environment variable
-    ].filter(Boolean);
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      // Restrict origins in production
-      const isDevelopment = process.env.NODE_ENV === 'development';
-      if (isDevelopment) {
-        callback(null, true); // Allow all in development
-      } else {
-        callback(new Error('Not allowed by CORS')); // Restrict in production
-      }
+    if (!origin) {
+      console.log('✅ CORS allowed: No origin (like mobile app or curl)');
+      return callback(null, true);
     }
+
+    if (allowedOrigins.includes(origin)) {
+      console.log(`✅ CORS allowed: ${origin}`);
+      return callback(null, true);
+    }
+
+    console.warn(`❌ CORS blocked: ${origin}`);
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
 };
+
 app.use(cors(corsOptions));
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
+// ==============================
+// Middleware
+// ==============================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Database connection
+// ==============================
+// Database Connection
+// ==============================
 const connectDB = async () => {
   const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/community-solver';
   try {
-    // Newer drivers ignore useNewUrlParser/useUnifiedTopology; pass only the options that matter
     await mongoose.connect(uri);
     console.log('✓ MongoDB connected successfully');
   } catch (err) {
-    console.error('✗ MongoDB connection error:', err && err.message ? err.message : err);
-    console.log('Note: The server will continue running but database operations will fail until MongoDB is available.');
-    console.log('Please make sure MongoDB is running or update MONGODB_URI in .env file');
-    // Do not rethrow the error — keep the server process alive so nodemon doesn't mark it as crashed
+    console.error('✗ MongoDB connection error:', err.message);
+    console.log('Server continues running, but database ops will fail until MongoDB is available.');
   }
 };
 
 connectDB();
 
+// ==============================
 // Routes
+// ==============================
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/report', require('./routes/report'));
 app.use('/api/contact', require('./routes/contact'));
 
-// Health check endpoint
+// Health Check Route
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running' });
+  res.json({ status: 'Server is running', time: new Date().toISOString() });
 });
 
-// Serve React frontend build (if present)
-// This allows the backend to serve the frontend when you deploy the whole repo together
+// Debug Route (Optional for testing CORS)
+app.get('/api/debug/origin', (req, res) => {
+  res.json({
+    receivedOrigin: req.get('origin'),
+    allowedOrigins,
+  });
+});
+
+// ==============================
+// Serve Frontend (optional if full-stack deploy)
+// ==============================
 const serveFrontend = () => {
   try {
     const buildPath = path.join(__dirname, '..', 'build');
-    // Only enable if build folder exists
-    if (require('fs').existsSync(buildPath)) {
+    if (fs.existsSync(buildPath)) {
       app.use(express.static(buildPath));
 
-      // For any non-API route, serve index.html — React Router will handle routing client-side
       app.get('*', (req, res, next) => {
         if (req.path.startsWith('/api')) return next();
         res.sendFile(path.join(buildPath, 'index.html'));
@@ -95,20 +113,21 @@ const serveFrontend = () => {
       console.log('✓ Frontend build is being served from', buildPath);
     }
   } catch (e) {
-    console.warn('Could not enable frontend static serving:', e && e.message ? e.message : e);
+    console.warn('Could not enable frontend static serving:', e.message);
   }
 };
 
-// Call unconditionally — serve if build exists (useful for local testing)
 serveFrontend();
 
-// For Vercel serverless functions, export the app instead of listening
+// ==============================
+// Exports / Start Server
+// ==============================
 module.exports = app;
 
-// Only listen if running locally (not on Vercel)
 if (require.main === module) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log('Allowed origins:', allowedOrigins);
   });
 }
